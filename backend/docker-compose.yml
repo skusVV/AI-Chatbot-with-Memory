@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: chatbot-postgres
+    environment:
+      POSTGRES_USER: chatbot
+      POSTGRES_PASSWORD: chatbot123
+      POSTGRES_DB: chatbot_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chatbot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: node:20-alpine
+    container_name: chatbot-backend
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "5001:5001"
+    environment:
+      PORT: 5001
+      OPEN_AI_KEY: ${OPEN_AI_KEY}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: chatbot
+      DB_PASSWORD: chatbot123
+      DB_NAME: chatbot_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+
