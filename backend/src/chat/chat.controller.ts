@@ -18,12 +18,14 @@ export class ChatController {
   @Delete('conversations/:id')
   async deleteConversation(@Param('id') id: string) {
     await this.chatService.deleteConversation(id);
+
     return { message: 'Conversation deleted successfully' };
   }
 
   @Post()
   async handleChat(@Body() body: { message: string; conversationId?: string }) {
     const response = await this.chatService.sendMessage(body.message, body.conversationId);
+
     return { message: response.message, conversationId: response.conversationId };
   }
 }
