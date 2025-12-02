@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { MessageRole } from '../enums/message-role.enum';
+import { Conversation } from './conversation.entity';
 
 @Entity('messages')
 export class Message {
@@ -14,6 +15,13 @@ export class Message {
 
   @Column('text')
   content: string;
+
+  @Column('uuid')
+  conversationId: string;
+
+  @ManyToOne(() => Conversation, (conversation) => conversation.messages)
+  @JoinColumn({ name: 'conversationId' })
+  conversation: Conversation;
 
   @CreateDateColumn()
   createdAt: Date;

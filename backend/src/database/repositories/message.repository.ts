@@ -11,15 +11,23 @@ export class MessageRepository {
     private readonly repository: Repository<Message>,
   ) {}
 
-  async create(role: MessageRole, content: string): Promise<Message> {
-    const message = this.repository.create({ role, content });
+  async create(role: MessageRole, content: string, conversationId: string): Promise<Message> {
+    const message = this.repository.create({ role, content, conversationId });
     return await this.repository.save(message);
   }
 
-  async getLastMessages(count: number): Promise<Message[]> {
+  async getLastMessagesByConversation(conversationId: string, count: number): Promise<Message[]> {
     return await this.repository.find({
+      where: { conversationId },
       order: { createdAt: 'DESC' },
       take: count,
+    });
+  }
+
+  async findByConversationId(conversationId: string): Promise<Message[]> {
+    return await this.repository.find({
+      where: { conversationId },
+      order: { createdAt: 'ASC' },
     });
   }
 
@@ -27,6 +35,10 @@ export class MessageRepository {
     return await this.repository.find({
       order: { createdAt: 'ASC' },
     });
+  }
+
+  async deleteByConversationId(conversationId: string): Promise<void> {
+    await this.repository.delete({ conversationId });
   }
 }
 
